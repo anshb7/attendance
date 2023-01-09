@@ -1,10 +1,14 @@
 import 'dart:io';
 
+import 'package:attendance/gsheet.dart';
+import 'package:attendance/user.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  UserSheetsAPI.init();
   runApp(const MyApp());
 }
 
@@ -33,6 +37,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   Barcode? result;
   QRViewController? controller;
@@ -53,36 +63,33 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Attendance",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        body: Stack(alignment: Alignment.center, children: [
-          Expanded(
-            flex: 5,
-            child: QRView(
-              key: qrKey,
-              onQRViewCreated: _onQRViewCreated,
-              overlay: QrScannerOverlayShape(
-                  borderWidth: 10,
-                  borderLength: 20,
-                  borderRadius: 10,
-                  cutOutSize: MediaQuery.of(context).size.width * 0.8),
+          appBar: AppBar(
+            title: Text(
+              "Attendance",
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          Expanded(
-            flex: 1,
-            child: Center(
-              child: (result != null)
-                  ? Text(
-                      'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!.code}')
-                  : Text('Scan a code'),
+          body: Stack(alignment: Alignment.center, children: [
+            Expanded(
+              flex: 5,
+              child: QRView(
+                key: qrKey,
+                onQRViewCreated: _onQRViewCreated,
+                overlay: QrScannerOverlayShape(
+                    borderWidth: 10,
+                    borderLength: 20,
+                    borderRadius: 10,
+                    cutOutSize: MediaQuery.of(context).size.width * 0.8),
+              ),
             ),
-          )
-        ]),
-      ),
+            Center(
+              child: ElevatedButton(
+                  onPressed: () {
+                    print(UserSheetsAPI.test);
+                  },
+                  child: Text("jak")),
+            )
+          ])),
     );
   }
 
@@ -99,5 +106,22 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     controller?.dispose();
     super.dispose();
+  }
+
+  bool isPresent(String a) {
+    int flag = 0;
+    for (var i in UserSheetsAPI.test) {
+      if (i == a) {
+        flag = 1;
+        break;
+      } else {
+        flag = 0;
+      }
+    }
+    if (flag == 1) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

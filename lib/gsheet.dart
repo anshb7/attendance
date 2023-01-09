@@ -1,8 +1,11 @@
+import 'package:attendance/user.dart';
 import 'package:gsheets/gsheets.dart';
 
 class UserSheetsAPI {
+  static List<String> test = [];
   static Worksheet? usersheet;
-  static const credentials = r'''
+
+  static const credentials = r'''{
  "type": "service_account",
   "project_id": "hacktuattendance",
   "private_key_id": "7438fc5515469b99d1e723d3db6375e537f19b55",
@@ -13,13 +16,20 @@ class UserSheetsAPI {
   "token_uri": "https://oauth2.googleapis.com/token",
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ccshacktu%40hacktuattendance.iam.gserviceaccount.com"
+  }
 ''';
   static final _spreadsheetsapi =
       "1VBhi1fvsPBUZt5O3GmGu2rmD2kNJaeCUZh-hMMoS7ew";
   static final _gsheets = GSheets(credentials);
   static Future init() async {
     final spreadsheet = await _gsheets.spreadsheet(_spreadsheetsapi);
-    final _usersheet = _getWorksheet(spreadsheet, title: "Users");
+    final usersheet = await _getWorksheet(spreadsheet, title: 'Users');
+    final test = await usersheet.values.column(6);
+    print(test);
+  }
+
+  Future<List<String>> getAll() async {
+    return await usersheet!.values.column(6);
   }
 
   static Future<Worksheet> _getWorksheet(Spreadsheet spreadsheet,
