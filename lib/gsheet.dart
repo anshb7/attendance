@@ -2,7 +2,6 @@ import 'package:attendance/user.dart';
 import 'package:gsheets/gsheets.dart';
 
 class UserSheetsAPI {
-  static List<String> test = [];
   static Worksheet? usersheet;
 
   static const credentials = r'''{
@@ -23,21 +22,19 @@ class UserSheetsAPI {
   static final _gsheets = GSheets(credentials);
   static Future init() async {
     final spreadsheet = await _gsheets.spreadsheet(_spreadsheetsapi);
-    final usersheet = await _getWorksheet(spreadsheet, title: 'Users');
-    final test = await usersheet.values.column(6);
-    print(test);
+    final usersheet = await spreadsheet.worksheetByTitle("Users");
   }
 
-  Future<List<String>> getAll() async {
-    return await usersheet!.values.column(6);
-  }
-
-  static Future<Worksheet> _getWorksheet(Spreadsheet spreadsheet,
-      {required String title}) async {
+  static Future insert(String name, String amount, bool _isIncome) async {
+    if (usersheet == null) return;
     try {
-      return await spreadsheet.addWorksheet(title);
+      await usersheet!.values.appendRow([
+        name,
+        amount,
+        _isIncome == true ? 'income' : 'expense',
+      ]);
     } catch (e) {
-      return spreadsheet.worksheetByTitle(title)!;
+      print(e);
     }
   }
 }
